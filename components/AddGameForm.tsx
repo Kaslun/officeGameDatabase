@@ -48,9 +48,8 @@ export default function AddGameForm({
         game: game.trim(),
         console: consoleOption,
         status: "Pending",
-        duplicate: false,
         rejection_reason: null,
-        purchased: false,
+        available: false,
       });
       if (error) throw error;
       onToast("Request added successfully.", "success");

@@ -33,9 +33,8 @@ export interface GameRequest {
   game: string;
   console: ConsoleOption;
   status: StatusOption;
-  duplicate: boolean;
   rejection_reason: string | null;
-  purchased: boolean;
+  available: boolean;
 }
 
 export interface GameRequestInsert {
@@ -44,9 +43,8 @@ export interface GameRequestInsert {
   game: string;
   console: ConsoleOption;
   status?: StatusOption;
-  duplicate?: boolean;
   rejection_reason?: string | null;
-  purchased?: boolean;
+  available?: boolean;
 }
 
 export interface GameRequestUpdate {
@@ -55,9 +53,8 @@ export interface GameRequestUpdate {
   game?: string;
   console?: ConsoleOption;
   status?: StatusOption;
-  duplicate?: boolean;
   rejection_reason?: string | null;
-  purchased?: boolean;
+  available?: boolean;
 }
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

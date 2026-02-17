@@ -46,7 +46,13 @@ export default function Home() {
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      setRequests((data as GameRequest[]) ?? []);
+      const rows = (data as (GameRequest & { purchased?: boolean })[]) ?? [];
+      setRequests(
+        rows.map((r) => ({
+          ...r,
+          available: r.available ?? r.purchased ?? false,
+        })) as GameRequest[]
+      );
     } catch (err) {
       onToast(
         err instanceof Error ? err.message : "Failed to load requests.",
@@ -90,14 +96,14 @@ export default function Home() {
   const pending = requests.filter((r) => r.status === "Pending").length;
   const approved = requests.filter((r) => r.status === "Approved").length;
   const available = requests.filter(
-    (r) => r.status === "Approved" && r.purchased
+    (r) => r.status === "Approved" && r.available
   ).length;
 
-  const hasSupabase =
-    typeof window !== "undefined" &&
+  const hasSupabase = !!(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
     (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  );
 
   return (
     <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950">

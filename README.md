@@ -23,9 +23,8 @@ Next.js 14 (App Router) app with Tailwind CSS and Supabase. Deploy-ready for Ver
      game text not null,
      console text not null check (console in ('PS5', 'Xbox Series X', 'Nintendo Switch', 'PC', 'PS4', 'Xbox One', 'Other')),
      status text not null default 'Pending' check (status in ('Pending', 'Approved', 'Rejected')),
-     duplicate boolean not null default false,
      rejection_reason text check (rejection_reason in ('Over budget', 'Age rating too high', 'Already own similar title', 'Not suitable for office', 'Out of stock / Unavailable', 'Other')),
-     purchased boolean not null default false
+     available boolean not null default false
    );
 
    alter table game_requests enable row level security;
@@ -60,9 +59,9 @@ Next.js 14 (App Router) app with Tailwind CSS and Supabase. Deploy-ready for Ver
 
 - Table of all game requests with alternating row colors
 - "+ New Request" form (name, game, console) with duplicate detection (same game + console)
-- Inline edit: status (Pending/Approved/Rejected), duplicate, rejection reason (when Rejected), purchased (when Approved)
+- Inline edit: status (Pending/Approved/Rejected), rejection reason (when Rejected), available (when Approved)
 - Delete with confirmation modal
 - Filter by status, sort by date / game / status / requester
-- Summary: Total, Pending, Approved, Available (approved + purchased)
+- Summary: Total, Pending, Approved, Available (approved + available)
 - Real-time updates via Supabase subscription
 - Toast notifications and responsive layout
