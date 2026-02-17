@@ -33,7 +33,8 @@ export default function Home() {
   const fetchRequests = useCallback(async () => {
     if (
       !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-      !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      (!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY &&
+        !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
     ) {
       setLoading(false);
       return;
@@ -64,7 +65,8 @@ export default function Home() {
   useEffect(() => {
     if (
       !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-      !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      (!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY &&
+        !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
     )
       return;
     const client = getSupabase();
@@ -94,7 +96,8 @@ export default function Home() {
   const hasSupabase =
     typeof window !== "undefined" &&
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
   return (
     <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -111,7 +114,7 @@ export default function Home() {
         {!hasSupabase && (
           <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
             Configure <code className="rounded bg-amber-100 px-1 dark:bg-amber-900/40">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
-            <code className="rounded bg-amber-100 px-1 dark:bg-amber-900/40">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> in{" "}
+            <code className="rounded bg-amber-100 px-1 dark:bg-amber-900/40">NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY</code> in{" "}
             <code className="rounded bg-amber-100 px-1 dark:bg-amber-900/40">.env.local</code> and create the{" "}
             <code className="rounded bg-amber-100 px-1 dark:bg-amber-900/40">game_requests</code> table in Supabase.
           </div>

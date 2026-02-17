@@ -34,7 +34,7 @@ Next.js 14 (App Router) app with Tailwind CSS and Supabase. Deploy-ready for Ver
      for all using (true) with check (true);
    ```
 
-   - In Project Settings → API copy the project URL and anon key.
+   - In Project Settings → API copy the project URL and **Publishable Key** (anon key is legacy and also supported).
 
 3. **Environment**
    ```bash
@@ -42,7 +42,7 @@ Next.js 14 (App Router) app with Tailwind CSS and Supabase. Deploy-ready for Ver
    ```
    Edit `.env.local` and set:
    - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` (or `NEXT_PUBLIC_SUPABASE_ANON_KEY` as fallback)
 
 4. **Run**
    ```bash
