@@ -1,13 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 
+/** Consoles that can be requested (aligned with filter consoles; admin enables which appear in Games). */
 export const CONSOLE_OPTIONS = [
   "PS5",
-  "Xbox Series X",
   "Nintendo Switch",
-  "PC",
   "PS4",
   "Xbox One",
-  "Other",
+  "Xbox Series X",
+  "PC",
 ] as const;
 
 export const STATUS_OPTIONS = ["Pending", "Approved", "Rejected"] as const;
@@ -28,30 +28,34 @@ export type RejectionReasonOption = (typeof REJECTION_REASON_OPTIONS)[number];
 export interface GameRequest {
   id: string;
   created_at: string;
-  date: string;
   requester: string;
-  game: string;
+  game_title: string;
+  game_image: string | null;
   console: ConsoleOption;
+  rawg_id: number | null;
   status: StatusOption;
   rejection_reason: string | null;
   available: boolean;
+  upvotes: number;
 }
 
 export interface GameRequestInsert {
-  date: string;
   requester: string;
-  game: string;
+  game_title: string;
+  game_image: string | null;
   console: ConsoleOption;
+  rawg_id?: number | null;
   status?: StatusOption;
   rejection_reason?: string | null;
   available?: boolean;
 }
 
 export interface GameRequestUpdate {
-  date?: string;
   requester?: string;
-  game?: string;
+  game_title?: string;
+  game_image?: string | null;
   console?: ConsoleOption;
+  rawg_id?: number | null;
   status?: StatusOption;
   rejection_reason?: string | null;
   available?: boolean;

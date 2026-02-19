@@ -3,15 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --foreground: #0a0a0a;
-  --background: #fafafa;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground: #fafafa;
-    --background: #0a0a0a;
-  }
+  --foreground: #fafafa;
+  --background: #0a0a0a;
+  --attensi-blue: #2DDEF8;
 }
 
 body {
@@ -19,7 +13,7 @@ body {
   background: var(--background);
 }
 
-/* Toast container - fixed bottom on mobile, top-right on desktop */
+/* Toast container */
 .toast-container {
   @apply fixed z-50 flex flex-col gap-2 p-4;
   bottom: 1rem;
@@ -35,4 +29,39 @@ body {
     left: auto;
     max-width: 22rem;
   }
+}
+
+/* Game/card grids: minimum column width so cards don't shrink; columns limited by space */
+.game-grid {
+  @apply grid gap-4;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+}
+
+/* Smooth transitions */
+* {
+  @apply transition-colors duration-150;
+}
+
+/* Dark scrollbars site-wide */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #52525b var(--background);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #52525b;
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #71717a;
 }
