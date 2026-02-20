@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
@@ -39,14 +40,6 @@ function HelpIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  );
-}
-
-function ControllerIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-      <path d="M9 14a1 1 0 100-2 1 1 0 000 2zm6 0a1 1 0 100-2 1 1 0 000 2zM6 8h12a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4a2 2 0 012-2zm0 4h2v2H6v-2zm10 0h2v2h-2v-2z" />
     </svg>
   );
 }
@@ -98,12 +91,10 @@ export default function Sidebar() {
     <>
       {/* Mobile top bar - high z so it stays above filter and page content when scaling */}
       <div className="fixed left-0 right-0 top-0 z-50 flex h-14 items-center justify-between border-b border-zinc-800 bg-zinc-900 px-4 lg:hidden">
-        <span className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-attensi text-zinc-900">
-            <ControllerIcon className="h-4 w-4" />
-          </span>
+        <Link href="/" className="flex items-center gap-2">
+          <Image src="/logo.png" alt="Attensi Game Hub" width={32} height={32} className="h-8 w-8 object-contain" priority />
           <span className="font-bold text-white">Attensi Game Hub</span>
-        </span>
+        </Link>
         <button
           type="button"
           onClick={() => setMobileOpen((o) => !o)}
@@ -129,12 +120,10 @@ export default function Sidebar() {
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        <div className="flex h-16 shrink-0 items-center gap-2 px-4 pt-4">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-attensi text-zinc-900">
-            <ControllerIcon className="h-5 w-5" />
-          </span>
+        <Link href="/" className="flex h-16 shrink-0 items-center gap-2 px-4 pt-4">
+          <Image src="/logo.png" alt="" width={36} height={36} className="h-9 w-9 object-contain" priority />
           <span className="text-lg font-bold text-white">Attensi Game Hub</span>
-        </div>
+        </Link>
 
         <nav className="mt-8 flex flex-1 flex-col overflow-y-auto px-3">
           {navLinks}

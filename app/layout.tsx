@@ -5,6 +5,10 @@ import Sidebar from "@/components/Sidebar";
 export const metadata: Metadata = {
   title: "Attensi Game Hub",
   description: "Find and request games for the office",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
