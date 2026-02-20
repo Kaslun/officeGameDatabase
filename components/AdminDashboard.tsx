@@ -99,10 +99,11 @@ export default function AdminDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ consoles: enabledConsoles }),
       });
-      if (!res.ok) throw new Error("Failed to save");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error((data as { error?: string }).error ?? "Failed to save");
       addToast(setToasts, "Consoles updated.", "success");
-    } catch {
-      addToast(setToasts, "Failed to save consoles.", "error");
+    } catch (err) {
+      addToast(setToasts, err instanceof Error ? err.message : "Failed to save consoles.", "error");
     } finally {
       setSavingConsoles(false);
     }
@@ -138,12 +139,13 @@ export default function AdminDashboard() {
           available: editAvailable,
         }),
       });
-      if (!res.ok) throw new Error("Failed to update");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error((data as { error?: string }).error ?? "Failed to update");
       addToast(setToasts, "Request updated.", "success");
       setEditingId(null);
       fetchAnalytics();
-    } catch {
-      addToast(setToasts, "Failed to update request.", "error");
+    } catch (err) {
+      addToast(setToasts, err instanceof Error ? err.message : "Failed to update request.", "error");
     } finally {
       setSavingRequest(false);
     }
@@ -153,12 +155,13 @@ export default function AdminDashboard() {
     setDeletingId(id);
     try {
       const res = await fetch(`/api/admin/requests/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error((data as { error?: string }).error ?? "Failed to delete");
       addToast(setToasts, "Request deleted.", "success");
       if (editingId === id) setEditingId(null);
       fetchAnalytics();
-    } catch {
-      addToast(setToasts, "Failed to delete request.", "error");
+    } catch (err) {
+      addToast(setToasts, err instanceof Error ? err.message : "Failed to delete request.", "error");
     } finally {
       setDeletingId(null);
     }
