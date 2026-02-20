@@ -63,6 +63,8 @@ function CloseIcon({ className }: { className?: string }) {
 export default function Sidebar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL;
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -130,16 +132,77 @@ export default function Sidebar() {
         </nav>
 
         <div className="border-t border-zinc-800 px-3 py-4">
-          <Link
-            href="#"
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition hover:bg-zinc-800 hover:text-white"
-            onClick={() => setMobileOpen(false)}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileOpen(false);
+              setHelpOpen(true);
+            }}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-zinc-400 transition hover:bg-zinc-800 hover:text-white"
           >
             <HelpIcon className="h-5 w-5 shrink-0" />
             Help
-          </Link>
+          </button>
         </div>
       </aside>
+
+      {/* Help modal */}
+      {helpOpen && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="help-title"
+        >
+          <div
+            className="absolute inset-0 bg-black/70"
+            onClick={() => setHelpOpen(false)}
+            aria-hidden
+          />
+          <div className="relative z-10 max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-xl border border-zinc-700 bg-zinc-900 p-6 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 id="help-title" className="text-lg font-semibold text-white">
+                About Attensi Game Hub
+              </h2>
+              <button
+                type="button"
+                onClick={() => setHelpOpen(false)}
+                className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                aria-label="Close help"
+              >
+                <CloseIcon className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="space-y-4 text-sm text-zinc-300">
+              <section>
+                <h3 className="mb-1 font-medium text-white">What is this?</h3>
+                <p>
+                  Attensi Game Hub is an office game request tracker. You can discover games, request titles for your workplace library, and upvote other people&apos;s requests. Admins review requests and can approve them, reject them with a reason, or mark games as available.
+                </p>
+              </section>
+              <section>
+                <h3 className="mb-1 font-medium text-white">How it works</h3>
+                <ul className="list-inside list-disc space-y-1">
+                  <li><strong>Discover</strong> — Browse popular and new games, search, and request any game.</li>
+                  <li><strong>Games</strong> — Filter by platform and genre, then request games you want.</li>
+                  <li><strong>Requests</strong> — See all requests, filter by status or console, and upvote. One upvote per person per request.</li>
+                  <li>Admins use the <strong>Admin</strong> area to manage requests and configure which consoles appear in the Games filter.</li>
+                </ul>
+              </section>
+              <section>
+                <h3 className="mb-1 font-medium text-white">Questions?</h3>
+                <p>
+                  {supportEmail ? (
+                    <>Contact <a href={`mailto:${supportEmail}`} className="text-attensi hover:underline">{supportEmail}</a> for support or questions.</>
+                  ) : (
+                    <>Contact your office administrator or the person who set up this site if you have questions.</>
+                  )}
+                </p>
+              </section>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
