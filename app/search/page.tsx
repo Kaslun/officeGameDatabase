@@ -43,7 +43,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     );
   }
 
-  const { page: _p, ...searchOptions } = options;
+  const { page, ...searchOptions } = options;
+  void page;
 
   let genres: Awaited<ReturnType<typeof fetchGenres>>["results"] = [];
   let tags: Awaited<ReturnType<typeof fetchTags>>["results"] = [];

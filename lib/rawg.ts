@@ -176,18 +176,6 @@ function isLewd(game: RawgGameListItem): boolean {
   return LEWD_ESRB_SLUGS.some((s) => slug === s || slug.includes(s));
 }
 
-function matchesConsole(game: RawgGameListItem, consoleFilter: string): boolean {
-  if (!consoleFilter || consoleFilter === "all") return true;
-  const names = game.platforms?.map((p) => mapRawgPlatformToConsole(p.platform.name)) ?? [];
-  return names.includes(consoleFilter);
-}
-
-function matchesAnyConsole(game: RawgGameListItem, consoles: string[]): boolean {
-  if (!consoles?.length) return true;
-  const names = game.platforms?.map((p) => mapRawgPlatformToConsole(p.platform.name)) ?? [];
-  return consoles.some((c) => names.includes(c));
-}
-
 function matchesAnyGenre(game: RawgGameListItem, genreSlugs: string[]): boolean {
   if (!genreSlugs?.length) return true;
   const slugs = game.genres?.map((g) => g.slug) ?? [];

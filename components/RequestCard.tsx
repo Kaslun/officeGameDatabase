@@ -18,7 +18,7 @@ interface RequestCardProps {
   onToast: (message: string, type: "success" | "error" | "info") => void;
 }
 
-export default function RequestCard({ request, onRefresh, onToast }: RequestCardProps) {
+export default function RequestCard({ request, onToast }: RequestCardProps) {
   const [upvotes, setUpvotes] = useState(request.upvotes ?? 0);
   const [upvoting, setUpvoting] = useState(false);
   const [alreadyVoted, setAlreadyVoted] = useState(() => hasUpvoted(request.id));

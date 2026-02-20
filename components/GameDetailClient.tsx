@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { getSupabase, CONSOLE_OPTIONS, type GameRequest } from "@/lib/supabase";
-import Toast, { type ToastItem } from "@/components/Toast";
+import { type ToastItem } from "@/components/Toast";
 import type { RawgGameDetail, RawgGameListItem } from "@/lib/rawg";
 import { mapRawgPlatformToConsole, fetchRelatedGames } from "@/lib/rawg";
 import GameDetailView from "@/components/GameDetailView";
@@ -60,6 +60,20 @@ export default function GameDetailClient({ game, enabledPlatforms, enabledConsol
     addToast(setToasts, message, type);
   }, []);
 
+  const refetchRequests = useCallback(async () => {
+    try {
+      const client = getSupabase();
+      const { data } = await client
+        .from("game_requests")
+        .select("*")
+        .eq("rawg_id", game.id)
+        .order("created_at", { ascending: false });
+      setRequests((data as GameRequest[]) ?? []);
+    } catch {
+      setRequests([]);
+    }
+  }, [game.id]);
+
   const handleRequestSubmit = useCallback(async () => {
     setSubmitting(true);
     try {
@@ -88,21 +102,7 @@ export default function GameDetailClient({ game, enabledPlatforms, enabledConsol
     } finally {
       setSubmitting(false);
     }
-  }, [game.name, game.background_image, game.id, selectedConsole, onToast]);
-
-  async function refetchRequests() {
-    try {
-      const client = getSupabase();
-      const { data } = await client
-        .from("game_requests")
-        .select("*")
-        .eq("rawg_id", game.id)
-        .order("created_at", { ascending: false });
-      setRequests((data as GameRequest[]) ?? []);
-    } catch {
-      setRequests([]);
-    }
-  }
+  }, [game.name, game.background_image, game.id, selectedConsole, onToast, refetchRequests]);
 
   useEffect(() => {
     let mounted = true;
@@ -126,6 +126,7 @@ export default function GameDetailClient({ game, enabledPlatforms, enabledConsol
     };
   }, [game.id]);
 
+  const genreSlug = game.genres?.[0]?.slug;
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -133,7 +134,7 @@ export default function GameDetailClient({ game, enabledPlatforms, enabledConsol
       try {
         const list = await fetchRelatedGames(
           game.id,
-          game.genres?.[0]?.slug,
+          genreSlug,
           8,
           { platforms: enabledPlatforms }
         );
@@ -147,7 +148,7 @@ export default function GameDetailClient({ game, enabledPlatforms, enabledConsol
     return () => {
       mounted = false;
     };
-  }, [game.id, game.genres?.[0]?.slug, enabledPlatforms]);
+  }, [game.id, genreSlug, enabledPlatforms]);
 
   const description = truncateDescription(game.description_raw ?? game.description);
   const platforms = game.platforms ?? [];

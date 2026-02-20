@@ -70,10 +70,6 @@ export default async function AllGamesPage({ searchParams }: GamesPageProps) {
     <main className="min-h-screen">
       <div className="mx-auto flex max-w-7xl flex-col px-4 py-8 sm:px-6 lg:flex-row lg:px-8">
         <div className="order-1 min-w-0 flex-1 pt-6 lg:order-2 lg:pt-0 lg:pl-8">
-          <h1 className="mb-2 text-2xl font-bold text-white">All games</h1>
-          <p className="mb-6 text-sm text-zinc-500">
-            Browse all available games.
-          </p>
 
           {error && (
             <p className="rounded-lg border border-amber-900/50 bg-amber-900/20 px-4 py-3 text-amber-200">

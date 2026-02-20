@@ -30,7 +30,6 @@ export default function GameDetailView(props: GameDetailViewProps) {
     onConsoleChange,
     onRequestSubmit,
     submitting,
-    onToast,
     toasts,
     onDismissToast,
     relatedGames,
