@@ -116,9 +116,9 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Sidebar: drawer on mobile (slide in), always visible on lg+ */}
+      {/* Sidebar: drawer on mobile (starts below header), always visible on lg+ */}
       <aside
-        className={`fixed left-0 top-0 z-40 flex h-full w-56 flex-col border-r border-zinc-800 bg-zinc-900 transition-transform duration-200 ease-out ${
+        className={`fixed left-0 top-14 z-40 flex h-[calc(100vh-3.5rem)] w-56 flex-col border-r border-zinc-800 bg-zinc-900 transition-transform duration-200 ease-out lg:top-0 lg:h-full ${
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
