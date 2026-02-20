@@ -5,8 +5,6 @@ import { getSupabase, CONSOLE_OPTIONS, STATUS_OPTIONS, type GameRequest } from "
 import RequestCard from "@/components/RequestCard";
 import Toast, { type ToastItem } from "@/components/Toast";
 
-const EDITOR_STORAGE_KEY = "office-game-editor-unlocked";
-
 function addToast(
   setToasts: React.Dispatch<React.SetStateAction<ToastItem[]>>,
   message: string,
@@ -21,22 +19,7 @@ export default function RequestsPage() {
   const [requests, setRequests] = useState<GameRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
-  const [editorUnlocked, setEditorUnlocked] = useState(false);
 
-  const hasEditorKey =
-    typeof process.env.NEXT_PUBLIC_EDITOR_KEY === "string" &&
-    process.env.NEXT_PUBLIC_EDITOR_KEY.length > 0;
-
-  useEffect(() => {
-    if (!hasEditorKey) return;
-    try {
-      if (sessionStorage.getItem(EDITOR_STORAGE_KEY) === "1") setEditorUnlocked(true);
-    } catch {
-      // ignore
-    }
-  }, [hasEditorKey]);
-
-  const canEditStatus = !hasEditorKey || editorUnlocked;
   const onToast = useCallback((message: string, type: ToastItem["type"]) => {
     addToast(setToasts, message, type);
   }, []);
@@ -111,33 +94,6 @@ export default function RequestsPage() {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
   );
 
-  const handleUnlockClick = useCallback(() => {
-    if (!hasEditorKey) return;
-    if (editorUnlocked) {
-      try {
-        sessionStorage.removeItem(EDITOR_STORAGE_KEY);
-      } catch {
-        // ignore
-      }
-      setEditorUnlocked(false);
-      onToast("Status editing locked.", "info");
-      return;
-    }
-    const key = window.prompt("Enter editor key to change status, rejection reason, and available:");
-    if (key === null) return;
-    if (key === process.env.NEXT_PUBLIC_EDITOR_KEY) {
-      try {
-        sessionStorage.setItem(EDITOR_STORAGE_KEY, "1");
-      } catch {
-        // ignore
-      }
-      setEditorUnlocked(true);
-      onToast("Status editing unlocked.", "success");
-    } else {
-      onToast("Incorrect key.", "error");
-    }
-  }, [hasEditorKey, editorUnlocked, onToast]);
-
   return (
     <main className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -156,22 +112,6 @@ export default function RequestsPage() {
             <code className="rounded bg-amber-900/40 px-1">NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY</code> in{" "}
             <code className="rounded bg-amber-900/40 px-1">.env.local</code> and create the{" "}
             <code className="rounded bg-amber-900/40 px-1">game_requests</code> table.
-          </div>
-        )}
-
-        {hasEditorKey && (
-          <div className="mb-6">
-            <button
-              type="button"
-              onClick={handleUnlockClick}
-              className={`rounded-xl px-4 py-2.5 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-attensi focus:ring-offset-2 focus:ring-offset-zinc-900 ${
-                editorUnlocked
-                  ? "border border-attensi bg-attensi/20 text-attensi"
-                  : "border border-zinc-600 bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
-              }`}
-            >
-              {editorUnlocked ? "✓ Status editing unlocked" : "Unlock status editing"}
-            </button>
           </div>
         )}
 
@@ -213,7 +153,6 @@ export default function RequestsPage() {
                 request={req}
                 onRefresh={fetchRequests}
                 onToast={onToast}
-                canEditStatus={canEditStatus}
               />
             ))}
           </div>

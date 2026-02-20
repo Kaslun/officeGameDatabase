@@ -54,6 +54,7 @@ export default function AdminDashboard() {
   const [editUpvotes, setEditUpvotes] = useState(0);
   const [editAvailable, setEditAvailable] = useState(false);
   const [savingRequest, setSavingRequest] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchAnalytics = useCallback(async () => {
     try {
@@ -145,6 +146,21 @@ export default function AdminDashboard() {
       addToast(setToasts, "Failed to update request.", "error");
     } finally {
       setSavingRequest(false);
+    }
+  };
+
+  const deleteRequest = async (id: string) => {
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/admin/requests/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
+      addToast(setToasts, "Request deleted.", "success");
+      if (editingId === id) setEditingId(null);
+      fetchAnalytics();
+    } catch {
+      addToast(setToasts, "Failed to delete request.", "error");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -442,9 +458,17 @@ export default function AdminDashboard() {
                           <button
                             type="button"
                             onClick={() => startEdit(r)}
-                            className="rounded-xl border border-zinc-600 px-2 py-1 text-xs text-zinc-400 hover:bg-zinc-700"
+                            className="mr-2 rounded-xl border border-zinc-600 px-2 py-1 text-xs text-zinc-400 hover:bg-zinc-700"
                           >
                             Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => deleteRequest(r.id)}
+                            disabled={deletingId === r.id}
+                            className="rounded-xl border border-red-800/60 px-2 py-1 text-xs text-red-400 hover:bg-red-900/30 disabled:opacity-50"
+                          >
+                            {deletingId === r.id ? "Deleting…" : "Delete"}
                           </button>
                         </td>
                       </>

@@ -3,16 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  getSupabase,
-  CONSOLE_OPTIONS,
-  STATUS_OPTIONS,
-  REJECTION_REASON_OPTIONS,
-  type GameRequest,
-  type StatusOption,
-} from "@/lib/supabase";
+import { getSupabase, type GameRequest, type StatusOption } from "@/lib/supabase";
 import { getVoterId, hasUpvoted, markUpvoted } from "@/lib/upvote";
-import FilterCheckbox from "@/components/FilterCheckbox";
 
 const STATUS_COLORS: Record<StatusOption, string> = {
   Pending: "bg-amber-500/90 text-black",
@@ -24,22 +16,9 @@ interface RequestCardProps {
   request: GameRequest;
   onRefresh: () => void;
   onToast: (message: string, type: "success" | "error" | "info") => void;
-  canEditStatus?: boolean;
 }
 
-export default function RequestCard({
-  request,
-  onRefresh,
-  onToast,
-  canEditStatus = true,
-}: RequestCardProps) {
-  const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [status, setStatus] = useState<StatusOption>(request.status);
-  const [rejectionReason, setRejectionReason] = useState<string | null>(request.rejection_reason);
-  const [available, setAvailable] = useState(request.available);
+export default function RequestCard({ request, onRefresh, onToast }: RequestCardProps) {
   const [upvotes, setUpvotes] = useState(request.upvotes ?? 0);
   const [upvoting, setUpvoting] = useState(false);
   const [alreadyVoted, setAlreadyVoted] = useState(() => hasUpvoted(request.id));
@@ -77,51 +56,6 @@ export default function RequestCard({
     }
   }
 
-  async function handleSave() {
-    setSaving(true);
-    try {
-      const res = await fetch(`/api/admin/requests/${request.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          status,
-          rejection_reason: rejectionReason,
-          available,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error((data as { error?: string }).error ?? "Update failed");
-      onToast("Updated.", "success");
-      setEditOpen(false);
-      onRefresh();
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Update failed.";
-      onToast(msg, "error");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleDelete() {
-    setDeleting(true);
-    try {
-      const res = await fetch(`/api/admin/requests/${request.id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error((data as { error?: string }).error ?? "Delete failed");
-      onToast("Request deleted.", "success");
-      setDeleteOpen(false);
-      onRefresh();
-    } catch (err) {
-      onToast(err instanceof Error ? err.message : "Delete failed.", "error");
-    } finally {
-      setDeleting(false);
-    }
-  }
-
   const cardContent = (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-zinc-700 bg-zinc-800/50 transition duration-200 hover:scale-[1.02] hover:border-zinc-600 hover:shadow-xl hover:shadow-black/20">
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-zinc-900">
@@ -136,42 +70,10 @@ export default function RequestCard({
         ) : (
           <div className="flex h-full items-center justify-center text-4xl text-zinc-600">🎮</div>
         )}
-        <div className="absolute left-2 top-2 right-2 flex items-start justify-between gap-1">
+        <div className="absolute left-2 top-2 right-2">
           <span className={`rounded px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[request.status]}`}>
             {request.status}
           </span>
-          {canEditStatus && (
-            <div className="flex gap-0.5 opacity-0 transition group-hover:opacity-100">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setEditOpen(true);
-                }}
-                className="rounded bg-zinc-800/90 p-1.5 text-zinc-300 hover:bg-zinc-700 hover:text-white"
-                title="Edit"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-                  <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setDeleteOpen(true);
-                }}
-                className="rounded bg-zinc-800/90 p-1.5 text-red-400 hover:bg-red-900/50"
-                title="Delete"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-                  <path fillRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.499-.058l-.347 9a.75.75 0 1 0 1.5.058l.346-9Z" clipRule="evenodd" />
-                </svg>
-              </button>
-            </div>
-          )}
         </div>
       </div>
       <div className="flex flex-1 flex-col p-3">
@@ -203,134 +105,6 @@ export default function RequestCard({
           <p className="mt-1 line-clamp-1 text-xs text-red-400">{request.rejection_reason}</p>
         )}
       </div>
-      {editOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (!saving) setEditOpen(false);
-          }}
-        >
-          <div
-            className="w-full max-w-sm rounded-xl border border-zinc-700 bg-zinc-900 p-4 shadow-xl"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          >
-            <h3 className="font-semibold text-white">Edit request</h3>
-            <div className="mt-3 space-y-3">
-              <div>
-                <label className="block text-xs font-medium text-zinc-400">Status</label>
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as StatusOption)}
-                  className="mt-1 w-full rounded-xl border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-white focus:border-attensi focus:outline-none focus:ring-2 focus:ring-attensi/50"
-                >
-                  {STATUS_OPTIONS.map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
-              </div>
-              {status === "Rejected" && (
-                <div>
-                  <label className="block text-xs font-medium text-zinc-400">Rejection reason</label>
-                  <select
-                    value={rejectionReason ?? ""}
-                    onChange={(e) => setRejectionReason(e.target.value || null)}
-                    className="mt-1 w-full rounded-xl border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-white focus:border-attensi focus:outline-none focus:ring-2 focus:ring-attensi/50"
-                  >
-                    <option value="">—</option>
-                    {REJECTION_REASON_OPTIONS.map((r) => (
-                      <option key={r} value={r}>{r}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              {status === "Approved" && (
-                <FilterCheckbox
-                  checked={available}
-                  onChange={() => setAvailable(!available)}
-                >
-                  Available
-                </FilterCheckbox>
-              )}
-            </div>
-            <div className="mt-4 flex gap-2">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleSave();
-                }}
-                disabled={saving}
-                className="flex-1 rounded-xl bg-attensi py-2 text-sm font-medium text-zinc-900 hover:bg-attensi/90 disabled:opacity-50"
-              >
-                {saving ? "Saving…" : "Save"}
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (!saving) setEditOpen(false);
-                }}
-                className="rounded-xl border border-zinc-600 py-2 px-4 text-sm font-medium text-zinc-300 hover:bg-zinc-800"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {deleteOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (!deleting) setDeleteOpen(false);
-          }}
-        >
-          <div
-            className="w-full max-w-sm rounded-xl border border-zinc-700 bg-zinc-900 p-4 shadow-xl"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          >
-            <h3 className="font-semibold text-white">Delete this request?</h3>
-            <p className="mt-2 text-sm text-zinc-400">This cannot be undone.</p>
-            <div className="mt-4 flex gap-2">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleDelete();
-                }}
-                disabled={deleting}
-                className="flex-1 rounded-xl bg-red-600 py-2 text-sm font-medium text-white hover:bg-red-500 disabled:opacity-50"
-              >
-                {deleting ? "Deleting…" : "Delete"}
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (!deleting) setDeleteOpen(false);
-                }}
-                className="rounded-xl border border-zinc-600 py-2 px-4 text-sm font-medium text-zinc-300 hover:bg-zinc-800"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 
