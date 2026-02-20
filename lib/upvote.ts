@@ -50,3 +50,19 @@ export function markUpvoted(requestId: string): void {
     // ignore
   }
 }
+
+/** Remove this request from the upvoted list (call after successfully removing upvote). */
+export function unmarkUpvoted(requestId: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = localStorage.getItem(UPVOTED_STORAGE_KEY);
+    const ids: string[] = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(ids)) return;
+    const next = ids.filter((id) => id !== requestId);
+    if (next.length !== ids.length) {
+      localStorage.setItem(UPVOTED_STORAGE_KEY, JSON.stringify(next));
+    }
+  } catch {
+    // ignore
+  }
+}

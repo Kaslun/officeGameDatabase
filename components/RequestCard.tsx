@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { getSupabase, type GameRequest, type StatusOption } from "@/lib/supabase";
-import { getVoterId, hasUpvoted, markUpvoted } from "@/lib/upvote";
+import { getVoterId, hasUpvoted, markUpvoted, unmarkUpvoted } from "@/lib/upvote";
 
 const STATUS_COLORS: Record<StatusOption, string> = {
   Pending: "bg-amber-500/90 text-black",
@@ -26,31 +26,47 @@ export default function RequestCard({ request, onToast }: RequestCardProps) {
   async function handleUpvote(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    if (upvoting || alreadyVoted) return;
+    if (upvoting) return;
     setUpvoting(true);
+    const voterId = getVoterId();
+    const client = getSupabase();
     try {
-      const voterId = getVoterId();
-      const client = getSupabase();
-      const { data, error } = await client.rpc("upvote_request", {
-        p_request_id: request.id,
-        p_voter_id: voterId,
-      });
-      if (error) throw error;
-      const result = data as { success?: boolean; already_voted?: boolean; new_count?: number } | null;
-      if (result?.already_voted) {
-        setAlreadyVoted(true);
-        markUpvoted(request.id);
-        if (typeof result.new_count === "number") setUpvotes(result.new_count);
-        onToast("You already upvoted this request.", "info");
-      } else if (result?.success && typeof result.new_count === "number") {
-        setAlreadyVoted(true);
-        markUpvoted(request.id);
-        setUpvotes(result.new_count);
+      if (alreadyVoted) {
+        const { data, error } = await client.rpc("remove_upvote", {
+          p_request_id: request.id,
+          p_voter_id: voterId,
+        });
+        if (error) throw error;
+        const result = data as { success?: boolean; new_count?: number } | null;
+        if (result?.success) {
+          unmarkUpvoted(request.id);
+          setAlreadyVoted(false);
+          if (typeof result.new_count === "number") setUpvotes(result.new_count);
+        } else if (typeof result?.new_count === "number") {
+          setUpvotes(result.new_count);
+        }
       } else {
-        setUpvotes(request.upvotes ?? 0);
+        const { data, error } = await client.rpc("upvote_request", {
+          p_request_id: request.id,
+          p_voter_id: voterId,
+        });
+        if (error) throw error;
+        const result = data as { success?: boolean; already_voted?: boolean; new_count?: number } | null;
+        if (result?.already_voted) {
+          setAlreadyVoted(true);
+          markUpvoted(request.id);
+          if (typeof result.new_count === "number") setUpvotes(result.new_count);
+          onToast("You already upvoted this request.", "info");
+        } else if (result?.success && typeof result.new_count === "number") {
+          setAlreadyVoted(true);
+          markUpvoted(request.id);
+          setUpvotes(result.new_count);
+        } else {
+          setUpvotes(request.upvotes ?? 0);
+        }
       }
     } catch {
-      onToast("Upvote failed. Try again.", "error");
+      onToast(alreadyVoted ? "Could not remove upvote. Try again." : "Upvote failed. Try again.", "error");
     } finally {
       setUpvoting(false);
     }
@@ -82,19 +98,18 @@ export default function RequestCard({ request, onToast }: RequestCardProps) {
           <button
             type="button"
             onClick={handleUpvote}
-            disabled={upvoting || alreadyVoted}
+            disabled={upvoting}
             className={`shrink-0 flex items-center gap-1 rounded-xl border px-2 py-1 text-xs font-medium transition disabled:opacity-50 ${
               alreadyVoted
-                ? "border-emerald-600/50 bg-emerald-900/30 text-emerald-400 cursor-default"
+                ? "border-emerald-600/50 bg-emerald-900/30 text-emerald-400 hover:bg-emerald-900/50 hover:border-emerald-500"
                 : "border-zinc-600 bg-zinc-800/80 text-zinc-300 hover:border-zinc-500 hover:bg-zinc-700 hover:text-white"
             }`}
-            title={alreadyVoted ? "You upvoted" : "Upvote"}
+            title={alreadyVoted ? "Remove upvote" : "Upvote"}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
               <path d="M7.493 18.75c-.425 0-.82-.236-.975-.632A7.48 7.48 0 0 1 6 15.125c0-1.75.599-3.358 1.602-4.634.151-.192.373-.309.6-.397.473-.183.89-.514 1.212-.924a9.042 9.042 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V3a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H14.23c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23h-.777Z" />
             </svg>
             <span>{upvotes}</span>
-            {alreadyVoted && <span className="text-[10px]">· upvoted</span>}
           </button>
         </div>
         <p className="mt-1 text-xs text-zinc-400">{request.console}</p>
