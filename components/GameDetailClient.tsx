@@ -49,7 +49,6 @@ interface GameDetailClientProps {
 
 export default function GameDetailClient({
   game,
-  enabledPlatforms,
   enabledConsoles,
   additions,
   initialRelatedGames = [],
@@ -61,7 +60,7 @@ export default function GameDetailClient({
   const [submitting, setSubmitting] = useState(false);
   const [requests, setRequests] = useState<GameRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [relatedGames, setRelatedGames] = useState<RawgGameListItem[]>(initialRelatedGames);
+  const relatedGames = initialRelatedGames;
   const relatedLoading = false;
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const onToast = useCallback((message: string, type: ToastItem["type"]) => {
