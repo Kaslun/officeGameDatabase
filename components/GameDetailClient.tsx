@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { getSupabase, CONSOLE_OPTIONS, type GameRequest } from "@/lib/supabase";
 import { type ToastItem } from "@/components/Toast";
 import type { RawgGameDetail, RawgGameListItem } from "@/lib/rawg";
-import { mapRawgPlatformToConsole, fetchRelatedGames } from "@/lib/rawg";
+import { mapRawgPlatformToConsole } from "@/lib/rawg";
 import GameDetailView from "@/components/GameDetailView";
 
 function getSupportedConsoles(game: RawgGameDetail, enabledConsoles?: string[]): string[] {
@@ -43,9 +43,17 @@ interface GameDetailClientProps {
   enabledConsoles?: string[];
   /** DLC, season passes, expansions (display only; not requestable). */
   additions?: RawgGameListItem[];
+  /** Related games fetched on the server (avoids extra client-side RAWG call). */
+  initialRelatedGames?: RawgGameListItem[];
 }
 
-export default function GameDetailClient({ game, enabledPlatforms, enabledConsoles, additions }: GameDetailClientProps) {
+export default function GameDetailClient({
+  game,
+  enabledPlatforms,
+  enabledConsoles,
+  additions,
+  initialRelatedGames = [],
+}: GameDetailClientProps) {
   const supportedConsoles = getSupportedConsoles(game, enabledConsoles);
   const [selectedConsole, setSelectedConsole] = useState<string>(
     () => supportedConsoles[0] ?? (enabledConsoles?.[0] ?? CONSOLE_OPTIONS[0])
@@ -53,8 +61,8 @@ export default function GameDetailClient({ game, enabledPlatforms, enabledConsol
   const [submitting, setSubmitting] = useState(false);
   const [requests, setRequests] = useState<GameRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [relatedGames, setRelatedGames] = useState<Awaited<ReturnType<typeof fetchRelatedGames>>>([]);
-  const [relatedLoading, setRelatedLoading] = useState(true);
+  const [relatedGames, setRelatedGames] = useState<RawgGameListItem[]>(initialRelatedGames);
+  const relatedLoading = false;
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const onToast = useCallback((message: string, type: ToastItem["type"]) => {
     addToast(setToasts, message, type);
@@ -125,30 +133,6 @@ export default function GameDetailClient({ game, enabledPlatforms, enabledConsol
       mounted = false;
     };
   }, [game.id]);
-
-  const genreSlug = game.genres?.[0]?.slug;
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      setRelatedLoading(true);
-      try {
-        const list = await fetchRelatedGames(
-          game.id,
-          genreSlug,
-          8,
-          { platforms: enabledPlatforms }
-        );
-        if (mounted) setRelatedGames(list);
-      } catch {
-        if (mounted) setRelatedGames([]);
-      } finally {
-        if (mounted) setRelatedLoading(false);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, [game.id, genreSlug, enabledPlatforms]);
 
   const description = truncateDescription(game.description_raw ?? game.description);
   const platforms = game.platforms ?? [];

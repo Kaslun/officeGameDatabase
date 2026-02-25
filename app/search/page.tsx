@@ -20,15 +20,6 @@ interface SearchPageProps {
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
   const query = (params.q ?? "").trim();
-  const enabledConsoles = await getCachedEnabledConsoles();
-  const nameToId = new Map<string, string>(ALL_FILTER_CONSOLES.map((c) => [c.name, c.id]));
-  const allowedPlatformIds =
-    enabledConsoles.length > 0
-      ? (enabledConsoles
-          .map((c) => nameToId.get(c))
-          .filter(Boolean) as string[])
-      : undefined;
-  const options = filterParamsToOptions(params, { allowedPlatformIds });
 
   if (!query) {
     return (
@@ -43,6 +34,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     );
   }
 
+  const enabledConsoles = await getCachedEnabledConsoles();
+  const nameToId = new Map<string, string>(ALL_FILTER_CONSOLES.map((c) => [c.name, c.id]));
+  const allowedPlatformIds =
+    enabledConsoles.length > 0
+      ? (enabledConsoles
+          .map((c) => nameToId.get(c))
+          .filter(Boolean) as string[])
+      : undefined;
+  const options = filterParamsToOptions(params, { allowedPlatformIds });
   const { page, ...searchOptions } = options;
   void page;
 
