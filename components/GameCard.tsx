@@ -44,6 +44,7 @@ export default function GameCard({ game, enabledConsoles }: GameCardProps) {
   return (
     <Link
       href={`/game/${game.id}`}
+      prefetch={false}
       className="group block overflow-hidden rounded-xl border border-zinc-700 bg-zinc-800/50 transition duration-200 hover:scale-[1.02] hover:border-zinc-600 hover:shadow-xl hover:shadow-black/20"
     >
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-zinc-900">

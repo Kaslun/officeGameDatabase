@@ -125,7 +125,7 @@ export default function RequestCard({ request, onToast }: RequestCardProps) {
 
   if (request.rawg_id) {
     return (
-      <Link href={`/game/${request.rawg_id}`} className="block h-full">
+      <Link href={`/game/${request.rawg_id}`} prefetch={false} className="block h-full">
         {cardContent}
       </Link>
     );

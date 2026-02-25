@@ -384,7 +384,7 @@ export default function AdminDashboard() {
                   <tr key={r.id} className="border-b border-zinc-700/50">
                     <td className="py-2 pr-4">
                       {r.rawg_id ? (
-                        <Link href={`/game/${r.rawg_id}`} className="text-attensi hover:underline">
+                        <Link href={`/game/${r.rawg_id}`} prefetch={false} className="text-attensi hover:underline">
                           {r.game_title}
                         </Link>
                       ) : (
