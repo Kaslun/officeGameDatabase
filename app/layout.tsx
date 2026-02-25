@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 
@@ -23,6 +24,7 @@ export default function RootLayout({
         <div className="min-h-screen w-full min-w-0 pt-14 lg:pl-56 lg:pt-0">
           {children}
         </div>
+        <Analytics />
       </body>
     </html>
   );
